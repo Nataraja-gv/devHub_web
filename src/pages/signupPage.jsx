@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import FileUpload from "../component/fileupload";
- 
 
 const skillsList = [
   "JavaScript",
@@ -44,8 +43,29 @@ const SignUpPage = () => {
   };
 
   console.log(userData, "userData");
+  console.log(selectedImages, "selectedImages");
 
-  
+  const handleMultiImages = (e) => {
+    const files = Array.from(e.target.files);
+    const total = files.length + selectedImages.length;
+    if (total > 5) {
+      alert("only upload 5 images")
+    }
+    const newImages = files.map((file) => ({
+      preview: URL.createObjectURL(file),
+      file,
+      name: file.name,
+      type: file.type,
+    }));
+
+    const updatedImages = [...selectedImages, ...newImages];
+
+    setSelectedImages(updatedImages);
+    setUserData((prev) => ({
+      ...prev,
+      profileImage: updatedImages.map((item) => item.file),
+    }));
+  };
 
   const handleSkillChange = (skill) => {
     if (selectedSkills.includes(skill)) {
@@ -58,6 +78,17 @@ const SignUpPage = () => {
       }
     }
   };
+
+  const handleRemoveImages = (index) => {
+    const updatedImages = [...selectedImages];
+    updatedImages.splice(index, 1);
+    setSelectedImages(updatedImages);
+    setUserData((prev) => ({
+      ...prev,
+      profileImage: updatedImages.map((item) => item.file),
+    }));
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 dark:bg-gray-900 px-4">
       <div className="w-full max-w-[700px] bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md my-[40px]">
@@ -91,7 +122,11 @@ const SignUpPage = () => {
             >
               Profile Images (up to 5)
             </label>
-            <FileUpload />
+            <FileUpload
+              handleMultiImages={handleMultiImages}
+              selectedImages={selectedImages}
+              handleRemoveImages={handleRemoveImages}
+            />
           </div>
 
           <div>
