@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import FileUpload from "../component/fileupload";
+import { useSnackbar } from "notistack";
+import { postSignUp } from "../services/auth/postSignup";
+import { useNavigate } from "react-router";
 
 const skillsList = [
   "JavaScript",
@@ -34,6 +37,8 @@ const SignUpPage = () => {
   });
 
   const [selectedImages, setSelectedImages] = useState([]);
+  const { enqueueSnackbar } = useSnackbar();
+  const navigate = useNavigate();
 
   const handleInputchanages = (key, value) => {
     setUserData((prev) => ({
@@ -42,14 +47,12 @@ const SignUpPage = () => {
     }));
   };
 
-  console.log(userData, "userData");
-  console.log(selectedImages, "selectedImages");
-
   const handleMultiImages = (e) => {
     const files = Array.from(e.target.files);
     const total = files.length + selectedImages.length;
     if (total > 5) {
-      alert("only upload 5 images")
+      enqueueSnackbar("Only 5 Images  upload  ", { variant: "error" });
+      return;
     }
     const newImages = files.map((file) => ({
       preview: URL.createObjectURL(file),
@@ -87,6 +90,75 @@ const SignUpPage = () => {
       ...prev,
       profileImage: updatedImages.map((item) => item.file),
     }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const requiredFields = [
+      "userName",
+      "email",
+      "password",
+      "age",
+      "gender",
+      "city",
+      "role",
+      "experience",
+      "bio",
+    ];
+
+    for (let field of requiredFields) {
+      if (!userData[field]) {
+        enqueueSnackbar(`Please fill in the ${field}`, { variant: "error" });
+        return;
+      }
+    }
+
+    if (!userData.profileImage.length) {
+      enqueueSnackbar("Please upload at least one profile image.", {
+        variant: "error",
+      });
+      return;
+    }
+
+    if (selectedSkills.length === 0) {
+      enqueueSnackbar("Please select at least one skill.", {
+        variant: "error",
+      });
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+
+      formData.append("userName", userData.userName);
+      formData.append("email", userData.email);
+      formData.append("password", userData.password);
+      formData.append("age", userData.age);
+      formData.append("gender", userData.gender);
+      formData.append("city", userData.city);
+      formData.append("role", userData.role);
+      formData.append("experience", userData.experience);
+      formData.append("bio", userData.bio);
+      formData.append("githubLink", userData.githubLink);
+      formData.append("linkedinLink", userData.linkedinLink);
+
+      userData.profileImage.forEach((file, index) => {
+        formData.append("profileImage", file);
+      });
+
+      formData.append("skills", JSON.stringify(selectedSkills));
+
+      const response = await postSignUp(formData);
+      if (response) {
+        enqueueSnackbar("Sign up successful!", { variant: "success" });
+        navigate("/");
+      }
+    } catch (error) {
+      enqueueSnackbar(error.message || "Sign up failed.", {
+        variant: "error",
+      });
+    }
   };
 
   return (
@@ -157,7 +229,7 @@ const SignUpPage = () => {
             <input
               type="password"
               id="password"
-              placeholder="••••••••"
+              placeholder="password"
               value={userData?.password}
               onChange={(e) => handleInputchanages("password", e.target.value)}
               className="mt-1 block w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
@@ -196,7 +268,7 @@ const SignUpPage = () => {
               onChange={(e) => handleInputchanages("gender", e.target.value)}
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
             >
-              <option disabled selected>
+              <option disabled value="">
                 Select Gender
               </option>
               <option value="male">Male</option>
@@ -219,7 +291,7 @@ const SignUpPage = () => {
               onChange={(e) => handleInputchanages("role", e.target.value)}
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
             >
-              <option disabled selected>
+              <option disabled value="">
                 Select Role
               </option>
               <option value="frontend developer">Frontend Developer</option>
@@ -361,6 +433,7 @@ const SignUpPage = () => {
 
           <button
             type="submit"
+            onClick={handleSubmit}
             className="w-full text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
           >
             Sign Up
@@ -371,6 +444,7 @@ const SignUpPage = () => {
             <a
               href="#"
               className="text-blue-600 hover:underline dark:text-blue-400"
+              onClick={()=>navigate("/login")}
             >
               Login
             </a>
