@@ -13,7 +13,7 @@ export const postSignUp = async (data) => {
   };
   try {
     const res = await axiosInstance.request(config);
-    return res?.data;
+    return res?.data?.data;
   } catch (error) {
     enqueueSnackbar(error.response.data.message, { variant: "error" });
   }
@@ -31,7 +31,7 @@ export const postSignIn = async (data) => {
   };
   try {
     const res = await axiosInstance.request(config);
-    return res?.data;
+    return res?.data?.data;
   } catch (error) {
     enqueueSnackbar(error.response.data.message, { variant: "error" });
   }

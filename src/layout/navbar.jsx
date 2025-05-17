@@ -1,8 +1,34 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { postLogout } from "../services/profile/logout";
+import { removeUser } from "../utils/features/userSlice";
 
 const NavBar = () => {
+  const user = useSelector((state) => state.user);
+  const [dropDownOpen, setDropDownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const dispatch = useDispatch();
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropDownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const hanndleLogout = async (e) => {
+    e.preventDefault();
+    await postLogout();
+    dispatch(removeUser());
+  };
+
   return (
-    <nav className="bg-white border-gray-200 shadow-sm dark:bg-gray-900 sticky top-0">
+    <nav className="bg-white border-gray-200 shadow-sm dark:bg-gray-900 sticky top-0 z-50">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
         <a href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
           <img
@@ -11,16 +37,17 @@ const NavBar = () => {
             alt="devhub Logo"
           />
         </a>
-        <div className="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
+        <div
+          className="relative flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse"
+          ref={dropdownRef}
+        >
           <button
+            onClick={() => setDropDownOpen(!dropDownOpen)}
             type="button"
             className="flex text-sm bg-gray-800 rounded-full md:me-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
             id="user-menu-button"
-            aria-expanded="false"
-            data-dropdown-toggle="user-dropdown"
-            data-dropdown-placement="bottom"
+            aria-expanded={dropDownOpen}
           >
-            <span className="sr-only">Open user menu</span>
             <img
               className="w-8 h-8 rounded-full"
               src="https://flowbite.com/docs/images/people/profile-picture-3.jpg"
@@ -29,53 +56,64 @@ const NavBar = () => {
           </button>
 
           {/* Dropdown */}
-          <div
-            className="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow-sm dark:bg-gray-700 dark:divide-gray-600"
-            id="user-dropdown"
-          >
-            <div className="px-4 py-3">
-              <span className="block text-sm text-gray-900 dark:text-white">
-                Bonnie Green
-              </span>
-              <span className="block text-sm text-gray-500 truncate dark:text-gray-400">
-                name@flowbite.com
-              </span>
+          {dropDownOpen && (
+            <div
+              className="absolute right-0 top-12 w-48 z-50 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow-sm dark:bg-gray-700 dark:divide-gray-600"
+              id="user-dropdown"
+            >
+              <div className="px-4 py-3">
+                <span className="block text-sm text-gray-900 dark:text-white">
+                  {user?.userName || "User"}
+                </span>
+                <span className="block text-sm text-gray-500 truncate dark:text-gray-400">
+                  {user?.email || "user@gmail.com"}
+                </span>
+              </div>
+              <ul className="py-2" aria-labelledby="user-menu-button">
+                <li>
+                  <a
+                    href="user/profile"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
+                  >
+                    Profile
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
+                  >
+                    Connections
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
+                  >
+                    Requests
+                  </a>
+                </li>
+                <li>
+                  {user?.userName ? (
+                    <a
+                      onClick={hanndleLogout}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer dark:text-gray-200 dark:hover:text-white"
+                    >
+                      Sign out
+                    </a>
+                  ) : (
+                    <a
+                      href="/login"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer dark:text-gray-200 dark:hover:text-white"
+                    >
+                      Sign In
+                    </a>
+                  )}
+                </li>
+              </ul>
             </div>
-            <ul className="py-2" aria-labelledby="user-menu-button">
-              <li>
-                <a
-                  href="#"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-                >
-                  Profile
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-                >
-                  Connections
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-                >
-                  Requests
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-                >
-                  Sign out
-                </a>
-              </li>
-            </ul>
-          </div>
+          )}
         </div>
 
         <div

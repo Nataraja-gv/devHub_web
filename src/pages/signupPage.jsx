@@ -3,6 +3,8 @@ import FileUpload from "../component/fileupload";
 import { useSnackbar } from "notistack";
 import { postSignUp } from "../services/auth/postSignup";
 import { useNavigate } from "react-router";
+import { useDispatch } from "react-redux";
+import { addUser } from "../utils/features/userSlice";
 
 const skillsList = [
   "JavaScript",
@@ -38,6 +40,7 @@ const SignUpPage = () => {
 
   const [selectedImages, setSelectedImages] = useState([]);
   const { enqueueSnackbar } = useSnackbar();
+  const dispatch = useDispatch()
   const navigate = useNavigate();
 
   const handleInputchanages = (key, value) => {
@@ -147,10 +150,11 @@ const SignUpPage = () => {
         formData.append("profileImage", file);
       });
 
-      formData.append("skills", JSON.stringify(selectedSkills));
+      formData.append("skills",  selectedSkills);
 
       const response = await postSignUp(formData);
       if (response) {
+        dispatch(addUser(response))
         enqueueSnackbar("Sign up successful!", { variant: "success" });
         navigate("/");
       }

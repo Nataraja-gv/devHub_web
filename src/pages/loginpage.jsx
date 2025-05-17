@@ -2,6 +2,8 @@ import { useSnackbar } from "notistack";
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { postSignIn } from "../services/auth/postSignup";
+import { useDispatch } from "react-redux";
+import { addUser } from "../utils/features/userSlice";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -9,6 +11,8 @@ const LoginPage = () => {
     email: "",
     password: "",
   });
+
+  const dispatch= useDispatch()
 
   const { enqueueSnackbar } = useSnackbar();
   const handleInputChanage = (key, value) => {
@@ -22,6 +26,7 @@ const LoginPage = () => {
     try {
       const response = await postSignIn(userData);
       if (response) {
+        dispatch(addUser(response))
         enqueueSnackbar("Sign In successful!", { variant: "success" });
         navigate("/");
       }
