@@ -9,7 +9,7 @@ const FileUpload = ({
   return (
     <div>
       <div className=" flex my-[15px] gap-[10px]">
-        {selectedImages.map((media, index) => (
+        {selectedImages?.map((media, index) => (
           <div
             key={index}
             className="relative h-24 w-24 border rounded overflow-hidden"
@@ -29,7 +29,7 @@ const FileUpload = ({
           </div>
         ))}
       </div>
-      {selectedImages.length < 5 && (
+      {selectedImages?.length < 5 && (
         <label className="flex flex-col items-center justify-center h-24 border-2 border-dashed rounded-lg cursor-pointer hover:bg-blue-50">
           <CloudUpload className="w-6 h-6 text-blue-500" />
           <span className="text-xs text-gray-500 mt-1">Upload</span>

@@ -5,6 +5,8 @@ import LoginPage from "../pages/loginpage";
 import SignUpPage from "../pages/signupPage";
 import ForgotPasswordPage from "../pages/forgotPasswordPage";
 import UserProfile from "../pages/userProfile";
+import NoPage from "../section/nopage";
+import EditProfile from "../pages/EditProfile";
 
 const Router = () => {
   return (
@@ -16,7 +18,9 @@ const Router = () => {
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/user/forgotpassword" element={<ForgotPasswordPage />} />
           <Route path="/user/profile" element={<UserProfile />} />
+          <Route path="/profile/edit" element={<EditProfile />} />
         </Route>
+        <Route path="*" element={<NoPage />} />
       </Routes>
     </BrowserRouter>
   );

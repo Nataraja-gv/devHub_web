@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import FileUpload from "../component/fileupload";
 import { useSnackbar } from "notistack";
-import { postSignUp } from "../services/auth/postSignup";
+
 import { useNavigate } from "react-router";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addUser } from "../utils/features/userSlice";
+import { patchUserProfile } from "../services/profile/getProfile";
 
 const skillsList = [
   "JavaScript",
@@ -20,13 +21,12 @@ const skillsList = [
   "SQL",
   "MongoDB",
 ];
-const SignUpPage = () => {
+const EditProfile = () => {
   const [selectedSkills, setSelectedSkills] = useState([]);
+  const user = useSelector((state) => state.user);
   const [userData, setUserData] = useState({
     userName: "",
     profileImage: [],
-    email: "",
-    password: "",
     age: null,
     gender: "",
     city: "",
@@ -37,6 +37,28 @@ const SignUpPage = () => {
     githubLink: "",
     linkedinLink: "",
   });
+  console.log(selectedSkills, "ss");
+  useEffect(() => {
+    setUserData({
+      userName: user?.userName,
+      age: user?.age,
+      gender: user?.gender,
+      city: user?.city,
+      role: user?.role,
+      experience: user?.experience,
+      bio: user?.bio,
+      githubLink: user?.githubLink,
+      linkedinLink: user?.linkedinLink,
+
+      profileImage: user?.profileImage || [],
+    });
+    const existingImages = user?.profileImage?.map((item) => ({
+      preview: item?.images_link,
+      existing: true,
+    }));
+    setSelectedImages(existingImages);
+    setSelectedSkills(user?.skills?.map((skill) => skill || []));
+  }, [user]);
 
   const [selectedImages, setSelectedImages] = useState([]);
   const { enqueueSnackbar } = useSnackbar();
@@ -95,14 +117,12 @@ const SignUpPage = () => {
     }));
   };
 
-  console.log(selectedSkills, "selectedSkills");
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const requiredFields = [
       "userName",
-      "email",
-      "password",
+
       "age",
       "gender",
       "city",
@@ -136,8 +156,7 @@ const SignUpPage = () => {
       const formData = new FormData();
 
       formData.append("userName", userData.userName);
-      formData.append("email", userData.email);
-      formData.append("password", userData.password);
+
       formData.append("age", userData.age);
       formData.append("gender", userData.gender);
       formData.append("city", userData.city);
@@ -147,22 +166,26 @@ const SignUpPage = () => {
       formData.append("githubLink", userData.githubLink);
       formData.append("linkedinLink", userData.linkedinLink);
 
-      userData.profileImage.forEach((file, index) => {
-        formData.append("profileImage", file);
+      selectedImages.forEach((item) => {
+        if (item.file) {
+          formData.append("profileImage", item.file);
+        } else if (item.preview && item.existing) {
+          formData.append("profileImage", item.preview);
+        }
       });
 
-      selectedSkills?.forEach((skill) => {
+       selectedSkills?.forEach((skill) => {
         formData.append("skills", skill);
       });
 
-      const response = await postSignUp(formData);
+      const response = await patchUserProfile(formData);
       if (response) {
         dispatch(addUser(response));
-        enqueueSnackbar("Sign up successful!", { variant: "success" });
-        navigate("/");
+        enqueueSnackbar("Profile Updated successful!", { variant: "success" });
+        navigate("/user/profile");
       }
     } catch (error) {
-      enqueueSnackbar(error.message || "Sign up failed.", {
+      enqueueSnackbar(error.message || "updated profile failed.", {
         variant: "error",
       });
     }
@@ -172,7 +195,7 @@ const SignUpPage = () => {
     <div className="flex min-h-screen items-center justify-center bg-gray-100 dark:bg-gray-900 px-4">
       <div className="w-full max-w-[700px] bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md my-[40px]">
         <h2 className="text-2xl font-bold text-center text-gray-800 dark:text-white mb-6">
-          Create your DevHub account
+          Edit your DevHub account
         </h2>
 
         <form className="space-y-5">
@@ -205,42 +228,6 @@ const SignUpPage = () => {
               handleMultiImages={handleMultiImages}
               selectedImages={selectedImages}
               handleRemoveImages={handleRemoveImages}
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              value={userData?.email}
-              onChange={(e) => handleInputchanages("email", e.target.value)}
-              placeholder="you@example.com"
-              className="mt-1 block w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-              required
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              placeholder="password"
-              value={userData?.password}
-              onChange={(e) => handleInputchanages("password", e.target.value)}
-              className="mt-1 block w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-              required
             />
           </div>
 
@@ -423,7 +410,7 @@ const SignUpPage = () => {
                   <input
                     type="checkbox"
                     value={skill}
-                    checked={selectedSkills.includes(skill)}
+                    checked={selectedSkills?.includes(skill)}
                     onChange={() => handleSkillChange(skill)}
                     className="accent-blue-600"
                   />
@@ -431,9 +418,9 @@ const SignUpPage = () => {
                 </label>
               ))}
             </div>
-            {selectedSkills.length > 0 && (
+            {selectedSkills?.length > 0 && (
               <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                Selected: {selectedSkills.join(", ")}
+                Selected: {selectedSkills?.join(", ")}
               </p>
             )}
           </div>
@@ -443,23 +430,12 @@ const SignUpPage = () => {
             onClick={handleSubmit}
             className="w-full text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
           >
-            Sign Up
+            Update
           </button>
-
-          <p className="text-sm text-center text-gray-600 dark:text-gray-400">
-            Already have an account?{" "}
-            <a
-              href="#"
-              className="text-blue-600 hover:underline dark:text-blue-400"
-              onClick={() => navigate("/login")}
-            >
-              Login
-            </a>
-          </p>
         </form>
       </div>
     </div>
   );
 };
 
-export default SignUpPage;
+export default EditProfile;
