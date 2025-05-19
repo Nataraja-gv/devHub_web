@@ -7,6 +7,8 @@ import ForgotPasswordPage from "../pages/forgotPasswordPage";
 import UserProfile from "../pages/userProfile";
 import NoPage from "../section/nopage";
 import EditProfile from "../pages/EditProfile";
+import FeedRequestPage from "../pages/feedRequest";
+import MyConnectionPage from "../pages/myConnection";
 
 const Router = () => {
   return (
@@ -19,6 +21,10 @@ const Router = () => {
           <Route path="/user/forgotpassword" element={<ForgotPasswordPage />} />
           <Route path="/user/profile" element={<UserProfile />} />
           <Route path="/profile/edit" element={<EditProfile />} />
+          <Route path="/request/feeds" element={<FeedRequestPage/>} />
+          <Route path="/my/connections" element={<MyConnectionPage/>} />
+
+
         </Route>
         <Route path="*" element={<NoPage />} />
       </Routes>

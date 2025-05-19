@@ -2,13 +2,16 @@ import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { postLogout } from "../services/profile/logout";
 import { removeUser } from "../utils/features/userSlice";
+import { useNavigate, useLocation } from "react-router";
 
 const NavBar = () => {
   const user = useSelector((state) => state.user);
   const [dropDownOpen, setDropDownOpen] = useState(false);
   const dropdownRef = useRef(null);
-
+  const navigate = useNavigate();
+  const location = useLocation();  
   const dispatch = useDispatch();
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -21,11 +24,13 @@ const NavBar = () => {
     };
   }, []);
 
-  const hanndleLogout = async (e) => {
+  const handleLogout = async (e) => {
     e.preventDefault();
     await postLogout();
     dispatch(removeUser());
   };
+
+  const isActive = (path) => location.pathname === path;
 
   return (
     <nav className="bg-white border-gray-200 shadow-sm dark:bg-gray-900 sticky top-0 z-50">
@@ -44,7 +49,7 @@ const NavBar = () => {
           <button
             onClick={() => setDropDownOpen(!dropDownOpen)}
             type="button"
-            className="flex text-sm bg-gray-800 rounded-full md:me-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+            className="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
             id="user-menu-button"
             aria-expanded={dropDownOpen}
           >
@@ -55,12 +60,8 @@ const NavBar = () => {
             />
           </button>
 
-          {/* Dropdown */}
           {dropDownOpen && (
-            <div
-              className="absolute right-0 top-12 w-48 z-50 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow-sm dark:bg-gray-700 dark:divide-gray-600"
-              id="user-dropdown"
-            >
+            <div className="absolute right-0 top-12 w-48 z-50 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow-sm dark:bg-gray-700 dark:divide-gray-600">
               <div className="px-4 py-3">
                 <span className="block text-sm text-gray-900 dark:text-white">
                   {user?.userName || "User"}
@@ -69,27 +70,27 @@ const NavBar = () => {
                   {user?.email || "user@gmail.com"}
                 </span>
               </div>
-              <ul className="py-2" aria-labelledby="user-menu-button">
+              <ul className="py-2">
                 <li>
                   <a
-                    href="user/profile"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
+                    href="/user/profile"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white"
                   >
                     Profile
                   </a>
                 </li>
                 <li>
                   <a
-                    href="#"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
+                    href="/my/connections"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white"
                   >
                     Connections
                   </a>
                 </li>
                 <li>
                   <a
-                    href="#"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
+                    onClick={() => navigate("/request/feeds")}
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer"
                   >
                     Requests
                   </a>
@@ -97,15 +98,15 @@ const NavBar = () => {
                 <li>
                   {user?.userName ? (
                     <a
-                      onClick={hanndleLogout}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer dark:text-gray-200 dark:hover:text-white"
+                      onClick={handleLogout}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer"
                     >
                       Sign out
                     </a>
                   ) : (
                     <a
                       href="/login"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer dark:text-gray-200 dark:hover:text-white"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white"
                     >
                       Sign In
                     </a>
@@ -116,32 +117,41 @@ const NavBar = () => {
           )}
         </div>
 
-        <div
-          className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1"
-          id="navbar-user"
-        >
-          <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+        {/* Main Navigation Links */}
+        <div className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1">
+          <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
             <li>
               <a
                 href="/"
-                className="block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500"
-                aria-current="page"
+                className={`block py-2 px-3 rounded md:p-0 ${
+                  isActive("/")
+                    ? "text-white bg-blue-700 md:bg-transparent md:text-blue-700 md:dark:text-blue-500"
+                    : "text-gray-900 hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white"
+                }`}
               >
                 Home
               </a>
             </li>
             <li>
               <a
-                href="#"
-                className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white"
+                href="/my/connections"
+                className={`block py-2 px-3 rounded md:p-0 ${
+                  isActive("/my/connections")
+                    ? "text-white bg-blue-700 md:bg-transparent md:text-blue-700 md:dark:text-blue-500"
+                    : "text-gray-900 hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white"
+                }`}
               >
                 Connections
               </a>
             </li>
             <li>
               <a
-                href="#"
-                className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white"
+                onClick={() => navigate("/request/feeds")}
+                className={`block py-2 px-3 rounded md:p-0 cursor-pointer ${
+                  isActive("/request/feeds")
+                    ? "text-white bg-blue-700 md:bg-transparent md:text-blue-700 md:dark:text-blue-500"
+                    : "text-gray-900 hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white"
+                }`}
               >
                 Requests
               </a>
