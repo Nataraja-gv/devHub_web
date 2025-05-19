@@ -1,13 +1,22 @@
- import React from "react";
-import { Mail, MapPin, ThumbsUp, ThumbsDown, UserCog, MessageSquareCode } from "lucide-react";
+import React from "react";
+import {
+  Mail,
+  MapPin,
+  ThumbsUp,
+  ThumbsDown,
+  UserCog,
+  MessageSquareCode,
+} from "lucide-react";
 
-const FeedCard = ({ user,handlePostConnection  }) => {
-    
+const FeedCard = ({ user, handlePostConnection }) => {
   return (
     <div className="relative w-[350px] h-[520px] rounded-3xl overflow-hidden shadow-2xl bg-gray-900">
       {/* Background Image */}
       <img
-        src={user?.profileImage?.[0]?.images_link || "https://via.placeholder.com/350x520"}
+        src={
+          user?.profileImage?.[0]?.images_link ||
+          "https://via.placeholder.com/350x520"
+        }
         alt={user.userName}
         className="w-full h-full object-cover"
       />
@@ -15,7 +24,7 @@ const FeedCard = ({ user,handlePostConnection  }) => {
       {/* Overlay content */}
       <div className="absolute bottom-0 w-full bg-gradient-to-t from-black/80 to-transparent p-6 text-white">
         <h2 className="text-3xl font-bold capitalize">{user.userName}</h2>
-          <p className="text-sm flex items-center gap-1 text-white">
+        <p className="text-sm flex items-center gap-1 text-white">
           <MessageSquareCode className="w-4 h-4" /> {user.age} age old
         </p>
         <p className="text-sm flex items-center gap-1 text-white">
@@ -43,10 +52,16 @@ const FeedCard = ({ user,handlePostConnection  }) => {
         </div>
 
         <div className="mt-4 flex justify-center gap-10">
-          <button className="bg-red-600 hover:bg-red-700 text-white p-3 rounded-full" onClick={()=>handlePostConnection("ignored",user._id)}>
+          <button
+            className="bg-red-600 hover:bg-red-700 text-white p-3 rounded-full"
+            onClick={() => handlePostConnection("ignored", user._id)}
+          >
             <ThumbsDown />
           </button>
-          <button className="bg-green-600 hover:bg-green-700 text-white p-3 rounded-full" onClick={()=>handlePostConnection("interested",user._id)} >
+          <button
+            className="bg-green-600 hover:bg-green-700 text-white p-3 rounded-full"
+            onClick={() => handlePostConnection("interested", user._id)}
+          >
             <ThumbsUp />
           </button>
         </div>
