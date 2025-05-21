@@ -4,7 +4,7 @@ let baseURL;
 if (window.location.hostname === "localhost") {
   baseURL = "http://localhost:7777";
 } else {
-  baseURL = "/api";
+  baseURL = "/api/";
 }
 
 const api = axios.create({
