@@ -7,10 +7,6 @@ if (window.location.hostname === "localhost") {
   baseURL = "/api";
 }
 
-const api = axios.create({
-  baseURL,
-});
-
 const axiosInstance = axios.create({
   baseURL: baseURL,
   withCredentials: true,
