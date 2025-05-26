@@ -34,3 +34,23 @@ export const postReviewConnection = async (status, requestId) => {
     enqueueSnackbar(error.response.data.message, { variant: "error" });
   }
 };
+
+export const postRazorPayment = async (Type) => {
+  const config = {
+    method: "POST",
+    maxBodyLength: Infinity,
+    url: `/payment/create`,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    data: {
+      memberShipType: Type,
+    },
+  };
+  try {
+    const res = await axiosInstance.request(config);
+    return res?.data;
+  } catch (error) {
+    enqueueSnackbar(error.response.data.message, { variant: "error" });
+  }
+};

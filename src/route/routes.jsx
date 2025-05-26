@@ -9,6 +9,7 @@ import NoPage from "../section/nopage";
 import EditProfile from "../pages/EditProfile";
 import FeedRequestPage from "../pages/feedRequest";
 import MyConnectionPage from "../pages/myConnection";
+import PremiumPage from "../pages/premiumPage";
 
 const Router = () => {
   return (
@@ -23,6 +24,7 @@ const Router = () => {
           <Route path="/profile/edit" element={<EditProfile />} />
           <Route path="/request/feeds" element={<FeedRequestPage/>} />
           <Route path="/my/connections" element={<MyConnectionPage/>} />
+          <Route path="/premium" element={<PremiumPage/>} />
 
 
         </Route>
